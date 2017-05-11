@@ -9,6 +9,7 @@ var mainState = {
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
     this.bird = game.add.sprite(100,245,'bird');
+    this.bird.anchor.setTo(-0.2, 0.5);
     game.physics.arcade.enable(this.bird);
     this.bird.body.gravity.y = 1000;
 
@@ -17,7 +18,7 @@ var mainState = {
 
     this.pipes = game.add.group();
 
-    this.time = game.time.events.loop(1500, this.addRowOfPipes, this);
+    this.timer = game.time.events.loop(1500, this.addRowOfPipes, this);
 
     this.score = -1;
     this.labelScore = game.add.text(20,20, '0', {font: '30px Arial', fill: '#ffffff'});
@@ -28,11 +29,20 @@ var mainState = {
       this.restartGame();
     }
 
-    game.physics.arcade.overlap(this.bird, this.pipes, this.restartGame, null, this);
+    game.physics.arcade.overlap(this.bird, this.pipes, this.hitPipe, null, this);
+
+    if (this.bird.angle < 20) {
+      this.bird.angle++;
+    }
   },
 
   jump: function() {
+    if (!this.bird.alive) {
+      return;
+    }
+
     this.bird.body.velocity.y = -350;
+    game.add.tween(this.bird).to({angle: -20}, 100).start();
   },
 
   restartGame: function() {
@@ -61,6 +71,20 @@ var mainState = {
     }
     this.score += 1;
     this.labelScore.text = this.score;
+  },
+
+  hitPipe: function() {
+    if (this.bird.alive == false) {
+      return;
+    }
+
+    this.bird.alive = false;
+
+    game.time.events.remove(this.timer);
+
+    this.pipes.forEach(function(pipe) {
+      pipe.body.velocity.x = 0;
+    }, this);
   }
 
 };
