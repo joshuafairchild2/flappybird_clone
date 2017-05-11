@@ -1,3 +1,4 @@
+
 var mainState = {
 
   preload: function() {
@@ -7,6 +8,10 @@ var mainState = {
   },
 
   create: function() {
+    if (localStorage.hiScore === undefined) {
+      localStorage.hiScore = 0;
+    }
+
     game.stage.backgroundColor = '#71c5cf';
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -23,7 +28,9 @@ var mainState = {
     this.timer = game.time.events.loop(1500, this.addRowOfPipes, this);
 
     this.score = -1;
-    this.labelScore = game.add.text(20,20, '0', {font: '30px Arial', fill: '#ffffff'});
+    this.scoreLabel = game.add.text(20,20, '0', {font: '30px Arial', fill: '#ffffff'});
+    this.hiScoreBanner = game.add.text(240, 24, 'High score: ', {font: '22px Arial', fill: '#ffffff'});
+    this.hiScoreLabel = game.add.text(360, 20, parseInt(localStorage.hiScore), {font: '30px Arial', fill: '#ffffff'});
 
     this.jumpSound = game.add.audio('jump');
   },
@@ -75,7 +82,12 @@ var mainState = {
       }
     }
     this.score += 1;
-    this.labelScore.text = this.score;
+    this.scoreLabel.text = this.score;
+
+    if (this.score > parseInt(localStorage.hiScore)) {
+      localStorage.hiScore = this.score;
+    }
+    this.hiScoreLabel.text = localStorage.hiScore;
   },
 
   hitPipe: function() {
